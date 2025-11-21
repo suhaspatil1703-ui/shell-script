@@ -1,0 +1,8 @@
+EC2 + S3 Creation Summary
+-------------------------
+Instance Name: my-demo-instance
+Instance ID: i-0d73847d524483367
+Public IP: None
+Security Group: my-demo-sg
+Key Pair: suhas
+S3 Bucket: demo-bucket-1763729633-22593
