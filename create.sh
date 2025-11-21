@@ -5,19 +5,19 @@ source "./config.env"
 
 log() { echo "$1"; }
 
-# Check AWS CLI
+
 if ! command -v aws &>/dev/null; then
   echo "AWS CLI not installed."; exit 1
 fi
 
-# Check AWS credentials
+
 if ! aws sts get-caller-identity &>/dev/null; then
   echo "AWS credentials not set."; exit 1
 fi
 
 export AWS_REGION
 
-# KEY PAIR
+
 if aws ec2 describe-key-pairs --key-names "$KEY_PAIR_NAME" &>/dev/null; then
   log "Key pair already exists."
 else
@@ -27,7 +27,7 @@ else
   chmod 400 "${KEY_PAIR_NAME}.pem"
 fi
 
-# SECURITY GROUP
+
 if aws ec2 describe-security-groups --group-names "$SEC_GROUP_NAME" &>/dev/null; then
   SG_ID=$(aws ec2 describe-security-groups --group-names "$SEC_GROUP_NAME" --query 'SecurityGroups[0].GroupId' --output text)
   log "Security group exists: $SG_ID"
@@ -41,7 +41,7 @@ else
       --group-id "$SG_ID" --protocol tcp --port 22 --cidr 0.0.0.0/0
 fi
 
-# EC2 INSTANCE
+
 EXISTING=$(aws ec2 describe-instances \
   --filters "Name=tag:Name,Values=$INSTANCE_NAME" \
   --query "Reservations[].Instances[].InstanceId" --output text)
@@ -65,7 +65,6 @@ fi
 
 PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $EXISTING --query "Reservations[0].Instances[0].PublicIpAddress" --output text)
 
-# S3 BUCKET
 BUCKET_NAME="${S3_BUCKET_PREFIX}-$(date +%s)-$RANDOM"
 
 log "Creating S3 bucket: $BUCKET_NAME"
@@ -76,7 +75,7 @@ else
      --create-bucket-configuration LocationConstraint="$AWS_REGION"
 fi
 
-# WRITE SUMMARY
+
 cat <<EOF > "$SUMMARY_FILE"
 EC2 + S3 Creation Summary
 -------------------------
